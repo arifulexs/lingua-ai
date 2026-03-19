@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinguaAI — Your English Tutor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-additions.css">
+</head>
+<body class="light-mode">
+
+  <!-- TOP NAV -->
+  <header class="top-nav">
+    <div class="brand">
+      <span class="brand-icon">🦜</span>
+      <span class="brand-name">LinguaAI</span>
+    </div>
+    <div class="xp-bar-wrapper">
+      <span class="level-badge" id="ui-level">Lv.1</span>
+      <div class="xp-track">
+        <div class="xp-fill" id="ui-xp-bar" style="width:0%"></div>
+      </div>
+      <span class="xp-label" id="ui-xp-text">0 / 100 XP</span>
+    </div>
+    <div class="nav-right">
+      <div class="hearts-row" id="hearts-display"></div>
+      <div class="settings-group">
+        <select id="variant-select" title="English Variant">
+          <option value="US">🇺🇸 US</option>
+          <option value="UK">🇬🇧 UK</option>
+        </select>
+        <label class="toggle-switch" title="Slang Mode">
+          <input type="checkbox" id="slang-toggle">
+          <span class="slider"></span>
+          <span class="toggle-label">Slang</span>
+        </label>
+      </div>
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <button class="nav-btn active" data-target="dashboard">
+        <i class="fa-solid fa-house"></i><span>Home</span>
+      </button>
+      <button class="nav-btn" data-target="explore">
+        <i class="fa-solid fa-magnifying-glass"></i><span>Word Explorer</span>
+      </button>
+      <button class="nav-btn" data-target="grammar">
+        <i class="fa-solid fa-spell-check"></i><span>Grammar Drills</span>
+      </button>
+      <button class="nav-btn" data-target="roleplay">
+        <i class="fa-solid fa-comments"></i><span>Roleplay</span>
+      </button>
+      <button class="nav-btn" data-target="writing">
+        <i class="fa-solid fa-pen-nib"></i><span>Writing Lab</span>
+      </button>
+      <button class="nav-btn" data-target="idioms">
+        <i class="fa-solid fa-lightbulb"></i><span>Idiom Trainer</span>
+      </button>
+      <button class="nav-btn" data-target="speed">
+        <i class="fa-solid fa-stopwatch"></i><span>Speed Challenge</span>
+      </button>
+      <button class="nav-btn" data-target="vocab">
+        <i class="fa-solid fa-bookmark"></i><span>My Vocab</span>
+      </button>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- GLOBAL LOADER -->
+      <div id="global-loader" class="loader-overlay hidden">
+        <div class="loader-card">
+          <div class="loader-ring"></div>
+          <p>AI is thinking<span class="dots">...</span></p>
+        </div>
+      </div>
+
+      <!-- ============ DASHBOARD ============ -->
+      <section id="dashboard" class="view active">
+        <div class="view-header">
+          <h1 id="greeting-text">Good morning! 👋</h1>
+          <p>Keep your streak alive and earn XP every day.</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card streak-card">
+            <div class="stat-icon-wrap orange"><i class="fa-solid fa-fire"></i></div>
+            <div><h2 id="ui-streak">0</h2><p>Day Streak</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap green"><i class="fa-solid fa-star"></i></div>
+            <div><h2 id="ui-points">0</h2><p>Total XP</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap blue"><i class="fa-solid fa-medal"></i></div>
+            <div><h2 id="ui-badges">0</h2><p>Badges</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap purple"><i class="fa-solid fa-book-open"></i></div>
+            <div><h2 id="ui-vocab-count">0</h2><p>Words Saved</p></div>
+          </div>
+        </div>
+        <!-- Daily Goal -->
+        <div class="goal-card">
+          <div class="goal-header">
+            <span><i class="fa-solid fa-bullseye"></i> Daily Goal</span>
+            <span id="daily-goal-label">0 / 50 XP</span>
+          </div>
+          <div class="goal-track">
+            <div class="goal-fill" id="daily-goal-bar" style="width:0%"></div>
+          </div>
+        </div>
+        <!-- Word of the Day -->
+        <div class="wotd-card" id="wotd-card">
+          <div class="wotd-ribbon">✨ WORD OF THE DAY</div>
+          <div class="wotd-body">
+            <h2 id="wotd-word" class="wotd-word">—</h2>
+            <span id="wotd-pos" class="wotd-pos"></span>
+            <p id="wotd-def" class="wotd-def">Loading your word of the day...</p>
+            <p id="wotd-example" class="wotd-example"></p>
+          </div>
+          <div class="wotd-actions">
+            <button class="btn-outline" id="wotd-speak"><i class="fa-solid fa-volume-high"></i> Pronounce</button>
+            <button class="btn-outline" id="wotd-save"><i class="fa-solid fa-bookmark"></i> Save</button>
+            <button class="btn-outline" id="wotd-refresh"><i class="fa-solid fa-rotate"></i> New Word</button>
+          </div>
+        </div>
+        <!-- Idiom of the Day (new) -->
+        <div class="iotd-card" id="iotd-card">
+          <div class="iotd-ribbon">💡 IDIOM OF THE DAY</div>
+          <div class="iotd-body">
+            <h2 id="iotd-phrase" class="iotd-phrase">—</h2>
+            <p id="iotd-meaning" class="iotd-meaning">Loading idiom of the day...</p>
+            <p id="iotd-example" class="iotd-example"></p>
+          </div>
+          <div class="wotd-actions">
+            <button class="btn-outline" id="iotd-speak"><i class="fa-solid fa-volume-high"></i> Hear It</button>
+            <button class="btn-outline" id="iotd-new"><i class="fa-solid fa-rotate"></i> New Idiom</button>
+          </div>
+        </div>
+        <!-- Achievements -->
+        <div class="badges-section">
+          <h3>Achievements</h3>
+          <div class="badges-grid" id="badges-grid"></div>
+        </div>
+      </section>
+
+      <!-- ============ WORD EXPLORER ============ -->
+      <section id="explore" class="view hidden">
+        <div class="view-header">
+          <h1>Word Explorer</h1>
+          <p>Discover words, hear pronunciations, and test yourself.</p>
+        </div>
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="word-input" placeholder="Enter any English word...">
+          <button class="btn-primary" id="btn-learn">Explore</button>
+          <button class="btn-ghost" id="btn-demo">Demo</button>
+        </div>
+        <!-- Pronunciation Practice -->
+        <div class="pronun-card" id="pronun-practice-card">
+          <div class="pronun-header"><i class="fa-solid fa-microphone"></i> Pronunciation Practice</div>
+          <p class="pronun-desc">Look up a word above, then use the <strong>Listen & Repeat</strong> button to practice saying it aloud.</p>
+        </div>
+        <div id="word-result-container"></div>
+      </section>
+
+      <!-- ============ GRAMMAR DRILLS ============ -->
+      <section id="grammar" class="view hidden">
+        <div class="view-header">
+          <h1>Grammar Drills</h1>
+          <p>Quick exercises to sharpen your grammar skills.</p>
+        </div>
+        <div class="drill-controls">
+          <select id="drill-type">
+            <option value="fill_blank">Fill in the Blank</option>
+            <option value="find_error">Find the Error</option>
+            <option value="tense_correction">Tense Correction</option>
+            <option value="word_order">Word Order</option>
+            <option value="article_usage">Article Usage (a/an/the)</option>
+            <option value="preposition">Preposition Choice</option>
+            <option value="conditional">Conditional Sentences</option>
+            <option value="passive_voice">Passive Voice</option>
+          </select>
+          <select id="drill-level">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <button class="btn-primary" id="btn-new-drill">
+            <i class="fa-solid fa-bolt"></i> New Question
+          </button>
+        </div>
+        <div id="drill-streak-display" class="drill-streak hidden">
+          🔥 <span id="drill-streak-count">0</span> in a row!
+        </div>
+        <div class="heart-earn-hint" id="heart-earn-hint">
+          <i class="fa-solid fa-heart-circle-plus"></i> Get 3 drills right in a row to earn a ❤️ back!
+        </div>
+        <div id="drill-container"></div>
+      </section>
+
+      <!-- ============ ROLEPLAY ============ -->
+      <section id="roleplay" class="view hidden">
+        <div class="view-header">
+          <h1>Roleplay Scenarios</h1>
+          <p>Practice real-life conversations with an AI partner.</p>
+        </div>
+        <div id="scenario-picker">
+          <p class="picker-label">Choose your scenario:</p>
+          <div class="scenario-grid" id="scenario-cards">
+            <!-- Original 6 -->
+            <button class="scenario-card active" data-scenario="ordering coffee at a busy cafe">
+              <span class="scenario-emoji">☕</span><span>Ordering Coffee</span>
+            </button>
+            <button class="scenario-card" data-scenario="a formal job interview for a tech company">
+              <span class="scenario-emoji">👔</span><span>Job Interview</span>
+            </button>
+            <button class="scenario-card" data-scenario="making small talk with a stranger at a bus stop">
+              <span class="scenario-emoji">🚌</span><span>Small Talk</span>
+            </button>
+            <button class="scenario-card" data-scenario="bargaining and negotiating at a local market">
+              <span class="scenario-emoji">🛒</span><span>Bargaining</span>
+            </button>
+            <button class="scenario-card" data-scenario="a doctor's appointment describing symptoms">
+              <span class="scenario-emoji">🏥</span><span>Doctor Visit</span>
+            </button>
+            <button class="scenario-card" data-scenario="checking into a hotel and resolving a booking issue">
+              <span class="scenario-emoji">🏨</span><span>Hotel Check-in</span>
+            </button>
+            <!-- 8 New Scenarios -->
+            <button class="scenario-card" data-scenario="checking in at an airport and dealing with a delayed flight">
+              <span class="scenario-emoji">✈️</span><span>Airport Check-in</span>
+            </button>
+            <button class="scenario-card" data-scenario="ordering food at a restaurant and politely complaining about a wrong order">
+              <span class="scenario-emoji">🍽️</span><span>Restaurant</span>
+            </button>
+            <button class="scenario-card" data-scenario="visiting a bank to open an account and asking about fees and services">
+              <span class="scenario-emoji">🏦</span><span>Bank Visit</span>
+            </button>
+            <button class="scenario-card" data-scenario="making a professional phone call to reschedule an important business meeting">
+              <span class="scenario-emoji">📞</span><span>Phone Call</span>
+            </button>
+            <button class="scenario-card" data-scenario="talking to a university professor about requesting an assignment deadline extension">
+              <span class="scenario-emoji">🎓</span><span>University</span>
+            </button>
+            <button class="scenario-card" data-scenario="returning a defective product at a store and negotiating a refund or replacement">
+              <span class="scenario-emoji">🏪</span><span>Product Return</span>
+            </button>
+            <button class="scenario-card" data-scenario="directing a taxi or rideshare driver to your destination and making polite conversation">
+              <span class="scenario-emoji">🚕</span><span>Taxi Ride</span>
+            </button>
+            <button class="scenario-card" data-scenario="professional networking at a business conference, introducing yourself and exchanging ideas">
+              <span class="scenario-emoji">🤝</span><span>Networking</span>
+            </button>
+            <button class="scenario-card" data-scenario="attending a job promotion discussion with your manager, asking for a raise">
+              <span class="scenario-emoji">💼</span><span>Salary Talk</span>
+            </button>
+            <button class="scenario-card" data-scenario="calling customer service to resolve a billing error with your internet provider">
+              <span class="scenario-emoji">📱</span><span>Customer Service</span>
+            </button>
+          </div>
+          <button class="btn-primary" id="btn-start-roleplay">
+            <i class="fa-solid fa-play"></i> Start Scenario
+          </button>
+        </div>
+        <div id="chat-wrapper" class="chat-wrapper hidden">
+          <div class="chat-header" id="chat-scenario-title">
+            <i class="fa-solid fa-comments"></i> <span></span>
+          </div>
+          <div class="chat-window" id="chat-window"></div>
+          <div id="suggestion-pills" class="suggestion-pills hidden"></div>
+          <div class="chat-input-bar">
+            <input type="text" id="chat-input" placeholder="Type your response..." autocomplete="off">
+            <button class="btn-icon-blue" id="btn-send-chat"><i class="fa-solid fa-paper-plane"></i></button>
+            <button class="btn-icon-red" id="btn-end-chat" title="End session & get scored">
+              <i class="fa-solid fa-flag-checkered"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WRITING LAB ============ -->
+      <section id="writing" class="view hidden">
+        <div class="view-header">
+          <h1>Writing Lab</h1>
+          <p>AI-powered grammar and style analysis for your writing.</p>
+        </div>
+        <div class="writing-inputs">
+          <div class="upload-zone" id="upload-zone">
+            <input type="file" id="image-upload" accept="image/jpeg,image/png,image/webp" class="hidden">
+            <div class="upload-icon-wrap"><i class="fa-solid fa-camera"></i></div>
+            <p><strong>Upload a photo</strong> of your handwriting</p>
+            <span>JPG · PNG · WEBP · Max 2MB</span>
+            <div id="image-preview-wrap" class="hidden">
+              <img id="image-preview" src="" alt="Preview">
+              <button class="btn-remove-img" id="btn-remove-img">✕</button>
+            </div>
+          </div>
+          <div class="or-divider"><span>OR</span></div>
+          <textarea id="writing-input" rows="7" placeholder="Type or paste your English text here for AI feedback..."></textarea>
+        </div>
+        <button class="btn-primary btn-full" id="btn-review-writing">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze My Writing
+        </button>
+        <div id="writing-result-container"></div>
+      </section>
+
+      <!-- ============ IDIOM TRAINER (NEW) ============ -->
+      <section id="idioms" class="view hidden">
+        <div class="view-header">
+          <h1>Idiom Trainer</h1>
+          <p>Master English idioms — learn their meaning, usage, and quiz yourself!</p>
+        </div>
+
+        <div class="idiom-controls">
+          <select id="idiom-category">
+            <option value="general">General Idioms</option>
+            <option value="business">Business &amp; Work</option>
+            <option value="emotion">Emotions &amp; Feelings</option>
+            <option value="time">Time &amp; Speed</option>
+            <option value="success">Success &amp; Failure</option>
+            <option value="money">Money &amp; Finance</option>
+            <option value="nature">Nature &amp; Weather</option>
+          </select>
+          <select id="idiom-level">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <button class="btn-primary" id="btn-new-idiom">
+            <i class="fa-solid fa-lightbulb"></i> New Idiom
+          </button>
+        </div>
+
+        <div id="idiom-container"></div>
+
+        <div class="idiom-progress-bar-wrap" id="idiom-progress-wrap" style="display:none">
+          <span>Idioms learned today:</span>
+          <span id="idiom-count-today">0</span>
+        </div>
+      </section>
+
+      <!-- ============ SPEED CHALLENGE (NEW) ============ -->
+      <section id="speed" class="view hidden">
+        <div class="view-header">
+          <h1>⚡ Speed Challenge</h1>
+          <p>Answer as many grammar questions as possible in 60 seconds!</p>
+        </div>
+
+        <div id="speed-lobby">
+          <div class="speed-intro-card">
+            <div class="speed-intro-icon">⚡</div>
+            <h2>Grammar Sprint</h2>
+            <p>You have <strong>60 seconds</strong>. Answer correctly for <strong>+5 XP</strong> each. Go as fast as you can!</p>
+            <div class="speed-difficulty-row">
+              <button class="diff-btn active" data-diff="beginner">🟢 Easy</button>
+              <button class="diff-btn" data-diff="intermediate">🟡 Medium</button>
+              <button class="diff-btn" data-diff="advanced">🔴 Hard</button>
+            </div>
+            <div class="speed-best-score">
+              🏆 Best Score: <span id="speed-best">0</span> correct
+            </div>
+            <button class="btn-primary btn-big" id="btn-start-speed">
+              <i class="fa-solid fa-play"></i> Start Sprint!
+            </button>
+          </div>
+        </div>
+
+        <div id="speed-arena" class="hidden">
+          <div class="speed-hud">
+            <div class="speed-timer-wrap">
+              <div class="speed-timer-ring">
+                <svg viewBox="0 0 80 80">
+                  <circle class="timer-bg" cx="40" cy="40" r="34"/>
+                  <circle class="timer-fill" id="speed-ring-circle" cx="40" cy="40" r="34"
+                    stroke-dasharray="213.6" stroke-dashoffset="0"/>
+                </svg>
+                <span id="speed-timer-text">60</span>
+              </div>
+            </div>
+            <div class="speed-score-display">
+              <div class="speed-score-num" id="speed-score">0</div>
+              <div class="speed-score-label">correct</div>
+            </div>
+            <div class="speed-streak-display">
+              <div class="speed-streak-num" id="speed-streak">0</div>
+              <div class="speed-score-label">streak 🔥</div>
+            </div>
+          </div>
+
+          <div class="speed-progress-bar">
+            <div class="speed-progress-fill" id="speed-timer-bar" style="width:100%"></div>
+          </div>
+
+          <div id="speed-question-area"></div>
+        </div>
+
+        <div id="speed-results" class="hidden">
+          <div class="speed-result-card">
+            <div class="speed-result-icon" id="speed-result-icon">🎉</div>
+            <h2 id="speed-result-title">Sprint Complete!</h2>
+            <div class="speed-result-stats">
+              <div class="speed-stat-box">
+                <div class="speed-stat-num" id="result-correct">0</div>
+                <div class="speed-stat-label">Correct</div>
+              </div>
+              <div class="speed-stat-box">
+                <div class="speed-stat-num" id="result-wrong">0</div>
+                <div class="speed-stat-label">Wrong</div>
+              </div>
+              <div class="speed-stat-box">
+                <div class="speed-stat-num" id="result-xp">0</div>
+                <div class="speed-stat-label">XP Earned</div>
+              </div>
+              <div class="speed-stat-box">
+                <div class="speed-stat-num" id="result-streak">0</div>
+                <div class="speed-stat-label">Best Streak</div>
+              </div>
+            </div>
+            <p id="speed-result-feedback" class="speed-result-feedback"></p>
+            <div class="speed-result-actions">
+              <button class="btn-primary" id="btn-speed-retry"><i class="fa-solid fa-redo"></i> Try Again</button>
+              <button class="btn-ghost" id="btn-speed-home" onclick="App.switchTab('dashboard')">Home</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MY VOCAB ============ -->
+      <section id="vocab" class="view hidden">
+        <div class="view-header">
+          <h1>My Vocabulary Bank</h1>
+          <p>Your saved words, ready for flashcard review.</p>
+        </div>
+        <div id="vocab-empty" class="empty-state">
+          <span class="empty-emoji">📚</span>
+          <h3>No words saved yet</h3>
+          <p>Save words from Word Explorer to review them here.</p>
+          <button class="btn-primary" onclick="App.switchTab('explore')">
+            <i class="fa-solid fa-magnifying-glass"></i> Explore Words
+          </button>
+        </div>
+        <div id="vocab-content" class="hidden">
+          <div class="vocab-toolbar">
+            <div class="vocab-stats-mini">
+              <span id="vocab-total-count">0 words</span>
+            </div>
+            <div class="vocab-toolbar-actions">
+              <button class="btn-primary" id="btn-quiz-vocab">
+                <i class="fa-solid fa-bolt"></i> Quiz Me
+              </button>
+              <button class="btn-ghost" id="btn-clear-vocab">
+                <i class="fa-solid fa-trash"></i> Clear All
+              </button>
+            </div>
+          </div>
+          <div class="vocab-grid" id="vocab-grid"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ❤️ HEART RECOVERY MODAL -->
+  <div id="heart-modal" class="modal-overlay hidden">
+    <div class="modal-card heart-modal-card">
+      <div class="heart-modal-icon">💔</div>
+      <h2 class="heart-modal-title">Out of Hearts!</h2>
+      <p class="heart-modal-desc">Play a quick drill to recover a ❤️ <strong>right now</strong>, or wait for the timer to refill one automatically.</p>
+
+      <!-- Quick drill area -->
+      <div id="heart-drill-area" class="heart-drill-area"></div>
+
+      <div class="heart-modal-divider">— OR WAIT —</div>
+
+      <!-- Auto-refill countdown -->
+      <div class="heart-timer-section">
+        <div class="heart-timer-label">Free heart refills in:</div>
+        <div class="heart-countdown-wrap">
+          <div class="heart-countdown" id="heart-countdown">1:00</div>
+          <div class="heart-timer-track">
+            <div class="heart-timer-fill" id="heart-timer-fill" style="width:100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="heart-modal-actions">
+        <button class="btn-primary btn-heart-drill" id="btn-get-heart-drill">
+          <i class="fa-solid fa-bolt"></i> Get a Drill → Win ❤️
+        </button>
+        <button class="btn-ghost" id="btn-close-heart-modal">Continue Without Hearts</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP GAIN POPUP -->
+  <div id="xp-popup" class="xp-popup hidden">+<span id="xp-amount">0</span> XP</div>
+
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- TOASTS -->
+  <div id="toast-container"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
