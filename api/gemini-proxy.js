@@ -3,8 +3,6 @@
  * Supports: text-only and multimodal (image + text) requests
  * Model: gemini-1.5-flash (free tier)
  */
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
   // Allow CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
